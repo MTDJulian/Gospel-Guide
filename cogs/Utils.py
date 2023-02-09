@@ -7,7 +7,7 @@ class Utils(Extension):
 		self.client = client
 
 	@interactions.extension_command(
-		name = "ping",
+	    name = "ping",
 	    description = "Pong 🏓",
 	    options = [
 	    	interactions.Option(
