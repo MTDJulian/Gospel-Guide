@@ -1,7 +1,7 @@
 import os
 import asyncio
 
-from src import (Yahmen, 
+from src import (GospelGuide, 
 				KjvBibleSql, Range)
 
 from dotenv import load_dotenv
@@ -9,20 +9,27 @@ from dotenv import load_dotenv
 load_dotenv()
 
 PARENT_DIR = os.getcwd()
-
 KJV_SQLITE_PATH = os.path.join(PARENT_DIR, 'bible', 'kjv', 'sql', 'bible.db')
 
 Bible = KjvBibleSql(KJV_SQLITE_PATH)
 
 
+blacklist = ['errors']
+
 def main() -> None:
-	bot = Yahmen(Bible)
+	bot = GospelGuide(Bible)
 
-	for file in os.listdir("cogs"):
-		if file.endswith(".py"):
-			bot.load(f'cogs.{file[:-3]}' )
+	# list of files in the cogs dir
+	files = os.listdir('cogs')
 
+	# filter only python files
+	files = list(filter(lambda f: f.endswith('.py') and f[:-3] not in blacklist, files))
+
+	# load extensions
+	for file in files:
+		bot.load('cogs.%s' % file[:-3])
 	
 	bot.start()
+
 if __name__ == '__main__':
 	main()

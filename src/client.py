@@ -6,7 +6,7 @@ from interactions import Client, Intents
 from dotenv import load_dotenv
 
 
-class Yahmen(Client):
+class GospelGuide(Client):
 	def __init__(self, bible) -> None:
 		intents = (Intents.DEFAULT | Intents.GUILD_MEMBERS |
 			Intents.GUILD_MESSAGES | interactions.Intents.GUILD_MESSAGE_CONTENT)

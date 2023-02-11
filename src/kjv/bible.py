@@ -5,6 +5,8 @@ import sqlite3
 
 from .verse import Verse
 from .range import Range 
+from .book import Book
+
 
 class KjvBibleSql:
 
@@ -14,6 +16,21 @@ class KjvBibleSql:
 		self.conn = sqlite3.connect(path)
 		self.cursor = self.conn.cursor()
 
+	def fetch_books(self) -> list[str]: 
+		payload: list[Book] = []
+
+		query = '''
+				SELECT book, chapter, MAX(verse) AS largest_verse
+				FROM Bible
+				GROUP BY book
+				ORDER BY MAX(id);
+				'''
+
+		self.cursor.execute(query)
+
+		payload = [Book(*data) for data in self.cursor.fetchall()]
+
+		return payload
 
 	def fetch_verses(self, book: str, chapter: int, verses: list[Range]) -> list[Verse]:
 		payload: list[Verse] = []
