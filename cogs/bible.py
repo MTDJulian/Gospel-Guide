@@ -1,9 +1,11 @@
 import random 
 import discord
 import interactions
-from interactions import Extension, Embed, Button
+from interactions import (Extension, 
+						Embed, Button, Color)
 
 from src import Range, InvalidRange
+
 from .errors import (InvalidBookName, 
 					InvalidChapter, InvalidVerse)
 
@@ -21,32 +23,37 @@ class Bible(Extension):
 
 		self._client = client
 
-		print(interactions.__version__)
+	
 
 
 	@interactions.extension_command(
 		name = "randomverse",
 		description = "Get random verse from the bible"
 	)
-	async def randomverse(self, ctx, f: str = None) -> None:
+	async def randomverse(self, ctx) -> None:
 		book = random.choice(self.books)
+		bible = self.bible
 
 		chapter = random.randint(1, book.chapters)
 		
-		start = random.randint(1, book.verses)
+		chapter_length = bible.chapter_verses(book.name, chapter)
+				
+		start = random.randint(1, chapter_length)
 
-		end = random.randint(1, book.verses)
+		
+		await self.preach(ctx, book.name, chapter, start, 0)
 
-		while start != end:
-			end = random.randint(1, book.verses)
+	@interactions.extension_command(
+		name = "dailyverse",
+		description = "Daily verse from the KJV Bible"
+	)
+	async def dailyverse(self, ctx) -> None:
+		verse = self.client.daily_verse
 
-		button = interactions.Button(
-		    style=interactions.ButtonStyle.DANGER,
-		    label="Delete",
-		    custom_id="delete_message",
-		)
-		await ctx.send(components=[button])
-		await self.preach(ctx, book.name, chapter, start, end)
+		book = self.client.daily_verse.split(":")[0][:-2]
+		chapter, start = verse[len(book):].strip().split(":")
+
+		await self.preach(ctx, book.lower(), int(chapter), int(start), 0)
 
 
 
@@ -92,20 +99,20 @@ class Bible(Extension):
 
 		if not books: 
 			raise InvalidBookName("**%s** is NOT a valid book in the KJV Bible" % book)
-		print("here #1")
 
 		book = books[0]
 		
 		if chapter > book.chapters: 
-			raise InvalidChapter("**%s** only has **%d** chapters, **%d** is not valid" % (fupper(book.name), book.chapters, chapter))
-		print("here #2")
+			raise InvalidChapter("**%s** only has **%d** chapters, **%d** is not valid" 
+				% (fupper(book.name), book.chapters, chapter))
 		
 		if (start > book.verses or end > book.verses): 
-			raise InvalidVerse("**%s** only has **%d** verses" % (fupper(book.name), 1))
+			raise InvalidVerse(
+				"**%s** chapter **%d** only has **%d** verses" % 
+				(fupper(book.name), chapter, bible.chapter_verses(book.name, chapter) ))
 
 		# Create an instance of the Embed class
-		embed = Embed(title = None, description = None)
-
+		embed = Embed(title = None, description = None, color = 16777215)
 
 		verses = bible.fetch_verses(book.name, chapter, [Range(start, end)])
 
@@ -117,8 +124,6 @@ class Bible(Extension):
 			)
 			print(verse.text)
  		
-		print(embed)
-
 		await ctx.send(embeds = [embed], content="**%s %d:%d:%d - King James Version**" % (fupper(book.name), chapter, start, end))
 
 	

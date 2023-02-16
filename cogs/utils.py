@@ -1,10 +1,13 @@
 import interactions
-from interactions import Extension
+
+from interactions import (Extension, 
+						Embed, Button, Color)
 
 
 class Utils(Extension):
 	def __init__(self, client):
 		self.client = client
+		
 
 	@interactions.extension_command(
 	    name = "ping",
@@ -26,6 +29,6 @@ class Utils(Extension):
 
 		await ctx.send(output)
 
-
+				
 def setup(client):
 	Utils(client)
