@@ -16,6 +16,17 @@ class KjvBibleSql:
 		self.conn = sqlite3.connect(path)
 		self.cursor = self.conn.cursor()
 
+	def chapter_verses(self, book, chapter) -> int:
+		query = '''
+				SELECT max(verse) as largest_verse 
+				FROM Bible
+				WHERE book = ? AND chapter = ?
+				'''
+
+		self.cursor.execute(query, (book, chapter))
+
+		return self.cursor.fetchall()[0][0]
+
 	def fetch_books(self) -> list[str]: 
 		payload: list[Book] = []
 
@@ -57,5 +68,6 @@ class KjvBibleSql:
 
 
 		return payload
+
 	def __del__(self) -> None:
 		self.conn.close()
