@@ -29,6 +29,9 @@ def main() -> None:
 	for file in files:
 		bot.load('cogs.%s' % file[:-3])
 	
+	# command helper
+	bot.load("interactions.ext.help")
+	
 	bot.start()
 
 if __name__ == '__main__':
